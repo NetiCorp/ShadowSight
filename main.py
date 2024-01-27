@@ -6,14 +6,15 @@ import warnings
 from pyfiglet import Figlet
 
 from core.tor.utils import main as tor_ip_utility
+from core.i2p.utils import main as i2p_ip_utility
 
 warnings.filterwarnings("ignore")
 
 
 def print_banner():
-    custom_fig = Figlet(font='slant')  # You can choose a different font
-    banner_text = custom_fig.renderText('ShadowSight')
-    print(f"{Fore.GREEN}{banner_text}{Style.RESET_ALL}")
+    custom_fig = Figlet(font='ansi_shadow')
+    banner_text = custom_fig.renderText('Shadow\n  Sight')
+    print(f"{Fore.GREEN}\n{banner_text}{Style.RESET_ALL}")
 
 
 def display_system_info():
@@ -35,7 +36,9 @@ def display_menu():
     print(
         f"  {Fore.CYAN}[{Style.RESET_ALL}4{Fore.CYAN}]{Style.RESET_ALL} Run Tor IP Utility")
     print(
-        f"  {Fore.CYAN}[{Style.RESET_ALL}5{Fore.CYAN}]{Style.RESET_ALL} Exit")
+        f"  {Fore.CYAN}[{Style.RESET_ALL}5{Fore.CYAN}]{Style.RESET_ALL} Run I2P IP Utility")
+    print(
+        f"  {Fore.CYAN}[{Style.RESET_ALL}6{Fore.CYAN}]{Style.RESET_ALL} Exit")
 
 
 def main():
@@ -56,6 +59,8 @@ def main():
             elif choice == "4":
                 tor_ip_utility()
             elif choice == "5":
+                i2p_ip_utility()
+            elif choice == "6":
                 print(f"{Fore.YELLOW}Exiting...{Style.RESET_ALL}")
                 sys.exit(0)
             else:

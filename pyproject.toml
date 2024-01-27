@@ -1,0 +1,13 @@
+[project]
+name = "ShadowSight"
+version = "0.1.0"
+description = "Dark Web Monitoring System"
+authors = [
+    {name = "A91y", email = "ayush.agr254@gmail.com"},
+]
+dependencies = []
+requires-python = "==3.11.*"
+readme = "README.md"
+
+[tool.pdm]
+distribution = false

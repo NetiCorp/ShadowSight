@@ -1,14 +1,16 @@
 from colorama import Fore, Style
 import sys
-from pathlib import Path
+import os
 import platform
 import warnings
 from pyfiglet import Figlet
-
+from pathlib import Path
 from core.tor.utils import main as tor_ip_utility
 from core.i2p.utils import main as i2p_ip_utility
 
 warnings.filterwarnings("ignore")
+BASE_DIR = Path(__file__).resolve().parent
+tcrawl = BASE_DIR / "tcrawl.py"
 
 
 def print_banner():
@@ -23,6 +25,17 @@ def display_system_info():
     print(f"  Processor: {platform.processor()}")
     print(f"  Python Version: {platform.python_version()}")
     print(f"  Architecture: {platform.architecture()}")
+
+
+def open_new_terminal(command):
+    if sys.platform == "win32":
+        os.system(f'start cmd /k "{command}"')
+    elif sys.platform.startswith("linux"):
+        os.system(f'gnome-terminal -- {command}')
+    elif sys.platform == "darwin":
+        os.system(f'open -a Terminal.app {command}')
+    else:
+        NotImplementedError(f"Unsupported Operating System: {sys.platform}")
 
 
 def display_menu():
@@ -51,7 +64,7 @@ def main():
             choice = input("Enter the number of your choice: ")
 
             if choice == "1":
-                pass
+                open_new_terminal(f"{sys.executable} {tcrawl}")
             elif choice == "2":
                 pass
             elif choice == "3":

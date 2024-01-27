@@ -10,3 +10,4 @@ TEMP_DB_FILE = "scraped.txt"
 NOT_FOUND_FILE = "not_found.txt"
 RETRY_PERIOD = 24*60*60
 CLEAR_DB_TIME = 24*60*60
+ARCHIVE_DIRECTORY = "archive"

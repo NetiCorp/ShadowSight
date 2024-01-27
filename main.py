@@ -4,20 +4,26 @@ from pathlib import Path
 import platform
 import warnings
 from pyfiglet import Figlet
+
+from core.tor.utils import main as tor_ip_utility
+
 warnings.filterwarnings("ignore")
+
 
 def print_banner():
     custom_fig = Figlet(font='slant')  # You can choose a different font
     banner_text = custom_fig.renderText('ShadowSight')
     print(f"{Fore.GREEN}{banner_text}{Style.RESET_ALL}")
-    
+
+
 def display_system_info():
     print(f"\n{Fore.CYAN}System Information:{Style.RESET_ALL}")
     print(f"  OS: {platform.system()} ")
     print(f"  Processor: {platform.processor()}")
     print(f"  Python Version: {platform.python_version()}")
     print(f"  Architecture: {platform.architecture()}")
-    
+
+
 def display_menu():
     print("\nChoose an option:")
     print(
@@ -30,6 +36,7 @@ def display_menu():
         f"  {Fore.CYAN}[{Style.RESET_ALL}4{Fore.CYAN}]{Style.RESET_ALL} Run Tor IP Utility")
     print(
         f"  {Fore.CYAN}[{Style.RESET_ALL}5{Fore.CYAN}]{Style.RESET_ALL} Exit")
+
 
 def main():
     print_banner()
@@ -47,7 +54,7 @@ def main():
             elif choice == "3":
                 pass
             elif choice == "4":
-                pass
+                tor_ip_utility()
             elif choice == "5":
                 print(f"{Fore.YELLOW}Exiting...{Style.RESET_ALL}")
                 sys.exit(0)
@@ -59,6 +66,7 @@ def main():
             sys.exit(0)
         except Exception as e:
             print(f"\n{Fore.RED}Error: {str(e)}{Style.RESET_ALL}")
+
 
 if __name__ == "__main__":
     main()

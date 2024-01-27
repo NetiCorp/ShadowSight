@@ -49,7 +49,7 @@ def display_menu():
     print(
         f"  {Fore.CYAN}[{Style.RESET_ALL}4{Fore.CYAN}]{Style.RESET_ALL} Run Tor IP Utility")
     print(
-        f"  {Fore.CYAN}[{Style.RESET_ALL}5{Fore.CYAN}]{Style.RESET_ALL} Run I2P IP Utility")
+        f"  {Fore.CYAN}[{Style.RESET_ALL}5{Fore.CYAN}]{Style.RESET_ALL} Get i2P IP Address")
     print(
         f"  {Fore.CYAN}[{Style.RESET_ALL}6{Fore.CYAN}]{Style.RESET_ALL} Exit")
 

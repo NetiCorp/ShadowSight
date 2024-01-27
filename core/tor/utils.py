@@ -7,7 +7,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from config import TOR_PASSWORD, TOR_CONTROL_PORT, TOR_SOCKS_PORT, HISTORY_FILE, TOR_SOCKS_HOST, DATA_DIRERCTORY
+from config import TOR_PASSWORD, TOR_CONTROL_PORT, TOR_SOCKS_PORT, HISTORY_FILE, TOR_SOCKS_HOST, DATA_DIRECTORY
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent  # Project Root
 
@@ -25,7 +25,7 @@ class TorUtility:
         # Initialize history file
         self.BASE_DIR = Path(__file__).parent.parent.parent
         self.history_file = (
-            self.BASE_DIR / DATA_DIRERCTORY / HISTORY_FILE).resolve()
+            self.BASE_DIR / DATA_DIRECTORY / HISTORY_FILE).resolve()
         self.initialize_history_file()
 
         history_thread = threading.Thread(
@@ -37,8 +37,8 @@ class TorUtility:
 
     def initialize_history_file(self):
         """Initialize the history file."""
-        if not os.path.exists(self.BASE_DIR / DATA_DIRERCTORY):
-            os.makedirs(self.BASE_DIR / DATA_DIRERCTORY)
+        if not os.path.exists(self.BASE_DIR / DATA_DIRECTORY):
+            os.makedirs(self.BASE_DIR / DATA_DIRECTORY)
         if not os.path.exists(self.history_file):
             with open(self.history_file, "w+") as file:
                 file.write("Timestamp,IP Address\n")

@@ -1,20 +1,27 @@
 import aiohttp
 import asyncio
-from aiohttp_socks import ProxyType, ProxyConnector
+from aiohttp_socks import ProxyConnector
 from bs4 import BeautifulSoup
 from datetime import datetime
 from urllib.parse import urljoin
 import os
 import time
-from colorama import init, Fore
-from core.sync import load_urls_from_temp_db, print_colored, get_random_user_agent, generate_secure_random_string, save_data_to_file, save_url_to_csv, save_url_to_temp_db, save_url_to_not_found, remove_url_from_not_found
+from pathlib import Path
+from colorama import Fore
+from core.syncf import load_urls_from_temp_db, print_colored, get_random_user_agent, generate_secure_random_string, save_data_to_file, save_url_to_csv, save_url_to_temp_db, save_url_to_not_found, remove_url_from_not_found
+from config import NOT_FOUND_FILE, DATA_DIRECTORY, TOR_SOCKS_HOST, TOR_SOCKS_PORT, TEMP_DB_PATH, RETRY_PERIOD
 
-DATA_DIRECTORY = 'data'
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIRECTORY = PROJECT_ROOT / DATA_DIRECTORY
+NOT_FOUND_FILE = DATA_DIRECTORY / NOT_FOUND_FILE
+TEMP_DB_PATH = PROJECT_ROOT / TEMP_DB_PATH
+
 
 async def fetch(url, session):
     async with session.get(url) as response:
         return await response.text()
-    
+
+
 async def web_crawler_with_saving_and_urls(id, url, session, connector):
     flag = False
     if ".onion" in str(url) or ".i2p" in str(url):
@@ -31,7 +38,7 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
     try:
         # Add a random user agent to the headers
         headers = {'User-Agent': get_random_user_agent()}
-        
+
         # Use a try-except block to catch CancelledError
         try:
             async with session.get(url, headers=headers, allow_redirects=True) as response:
@@ -73,7 +80,8 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
         print_colored(
             f"Request failed for URL: {url}\nError: {e}", Fore.RED)
         return set()
-    
+
+
 async def recursive_crawler(url, session, connector, depth=1, max_depth=3, limit=False):
     if limit and depth > max_depth:
         return
@@ -84,10 +92,11 @@ async def recursive_crawler(url, session, connector, depth=1, max_depth=3, limit
     tasks = [recursive_crawler(next_url, session, connector,
                                depth + 1, max_depth, limit) for next_url in found_urls]
     await asyncio.gather(*tasks)
-    
+
+
 async def main():
     # create data/not_found.txt if it does not exist
-    not_found_file_path = 'data/not_found.txt'
+    not_found_file_path = NOT_FOUND_FILE
     os.makedirs('data', exist_ok=True)
     try:
         with open(not_found_file_path, 'x', encoding='utf-8') as file:
@@ -96,7 +105,7 @@ async def main():
         pass
     search_keywords = ["index", "heroin", "meth"]
     base_torch_url = f"http://torch2cjfpa4gwrzsghfd2g6nebckghjkx3bn6xyw6capgj2nqemveqd.onion/"
-    proxy_url = 'socks5://localhost:9050'
+    proxy_url = f'socks5://{TOR_SOCKS_HOST}:{TOR_SOCKS_PORT}'
 
     connector = ProxyConnector.from_url(proxy_url)
 
@@ -112,7 +121,7 @@ async def main():
         print_colored(f"Error: {str(e)}", Fore.RED)
     finally:
         # Cleanup: Delete the "temp" folder and its contents
-        temp_folder_path = 'temp'
+        temp_folder_path = TEMP_DB_PATH
         try:
             for file_name in os.listdir(temp_folder_path):
                 file_path = os.path.join(temp_folder_path, file_name)
@@ -125,9 +134,10 @@ async def main():
 
         except Exception as e:
             print_colored(f"Error during cleanup: {str(e)}", Fore.RED)
-            
+
+
 async def retry_scrape_not_found_urls(session, connector):
-    not_found_file_path = 'data/not_found.txt'
+    not_found_file_path = NOT_FOUND_FILE
     try:
         with open(not_found_file_path, 'r', encoding='utf-8') as file:
             not_found_urls = [line.strip() for line in file if line.strip()]
@@ -142,16 +152,17 @@ async def retry_scrape_not_found_urls(session, connector):
         # If the scraping is successful, remove the URL from not_found.txt
         # if url not in load_urls_from_temp_db():
         remove_url_from_not_found(url)
-        
+
+
 async def periodic_retry_scrape():
     print_colored("Periodic Retry Enabled", Fore.CYAN)
     while True:
-        time.sleep(24*60*60)  # 1 day
+        time.sleep(RETRY_PERIOD)
         try:
-            connector = ProxyConnector.from_url('socks5://localhost:9050')
+            connector = ProxyConnector.from_url(
+                f'socks5://{TOR_SOCKS_HOST}:{TOR_SOCKS_PORT}')
 
             async with aiohttp.ClientSession(connector=connector) as session:
                 await retry_scrape_not_found_urls(session, connector)
         except Exception as e:
             print_colored(f"Error during periodic retry: {str(e)}", Fore.RED)
-            

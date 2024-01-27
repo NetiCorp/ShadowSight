@@ -5,25 +5,35 @@ import secrets
 import string
 from fake_useragent import UserAgent
 import time
-from colorama import init, Fore
+from pathlib import Path
+from colorama import Fore
 
-TEMP_DB_PATH = 'temp'
-CSV_FILE_PATH = os.path.join('data', 'data.csv')
+from config import TEMP_DB_PATH, CSV_FILE_PATH, TEMP_DB_FILE, NOT_FOUND_FILE, DATA_DIRECTORY, CLEAR_DB_TIME
+
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIRECTORY = PROJECT_ROOT / DATA_DIRECTORY
+NOT_FOUND_FILE = DATA_DIRECTORY / NOT_FOUND_FILE
+TEMP_DB_PATH = PROJECT_ROOT / TEMP_DB_PATH
+
 
 def print_colored(message, color=Fore.WHITE):
     print(color + message + Fore.RESET)
-    
+
+
 def get_random_user_agent():
     user_agent = UserAgent()
     return user_agent.random
+
 
 def generate_secure_random_string(length=8):
     alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
+
 def sanitize_filename(filename):
     invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
     return ''.join(char if char not in invalid_chars else '_' for char in filename)
+
 
 def save_data_to_file(data, directory, filename):
     os.makedirs(directory, exist_ok=True)
@@ -31,6 +41,7 @@ def save_data_to_file(data, directory, filename):
     with open(filepath, 'w', encoding='utf-8') as file:
         file.write(data)
     print(f"Data saved to: {filepath}")
+
 
 def save_url_to_csv(filename, url):
     with open(CSV_FILE_PATH, 'a', newline='', encoding='utf-8') as csvfile:
@@ -43,10 +54,11 @@ def save_url_to_csv(filename, url):
             {'filename': filename, 'url': url, 'timestamp': timestamp})
         print_colored(
             f"URL saved to CSV: filename={filename}, url={url}", Fore.GREEN)
-        
+
+
 def save_url_to_temp_db(url):
     os.makedirs(TEMP_DB_PATH, exist_ok=True)
-    temp_db_file = os.path.join(TEMP_DB_PATH, "scraped.txt")
+    temp_db_file = os.path.join(TEMP_DB_PATH, TEMP_DB_FILE)
 
     # Check if the URL is already in the database
     if url in load_urls_from_temp_db():
@@ -56,33 +68,37 @@ def save_url_to_temp_db(url):
     with open(temp_db_file, 'a', encoding='utf-8') as file:
         file.write(f"{url}\n")
     print_colored(f"URL saved to temporary database: {url}", Fore.GREEN)
-    
+
+
 def load_urls_from_temp_db():
     urls_set = set()
-    temp_db_file_path = os.path.join(TEMP_DB_PATH, "scraped.txt")
+    temp_db_file_path = os.path.join(TEMP_DB_PATH, TEMP_DB_FILE)
     if os.path.exists(temp_db_file_path):
         with open(temp_db_file_path, 'r', encoding='utf-8') as file:
             urls_set.update(line.strip() for line in file if line.strip())
     return urls_set
 
+
 def clear_temp_db_data():
     while True:
-        time.sleep(24*60*60)  # Sleep for 10 minutes (600 seconds)
+        time.sleep(CLEAR_DB_TIME)
         try:
-            with open(os.path.join(TEMP_DB_PATH, "scraped.txt"), 'w', encoding='utf-8') as file:
+            with open(os.path.join(TEMP_DB_PATH, TEMP_DB_FILE), 'w', encoding='utf-8') as file:
                 file.truncate()
         except Exception as e:
             pass
         print_colored("Temporary database cleared.", Fore.YELLOW)
-        
+
+
 def save_url_to_not_found(url):
-    not_found_file_path = 'data/not_found.txt'
+    not_found_file_path = NOT_FOUND_FILE
     with open(not_found_file_path, 'a', encoding='utf-8') as file:
         file.write(f"{url}\n")
     print_colored(f"URL saved to not found file: {url}", Fore.RED)
 
+
 def remove_url_from_not_found(url):
-    not_found_file_path = 'data/not_found.txt'
+    not_found_file_path = NOT_FOUND_FILE
     try:
         with open(not_found_file_path, 'r', encoding='utf-8') as file:
             not_found_urls = [line.strip() for line in file if line.strip()]
